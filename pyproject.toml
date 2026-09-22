@@ -1,0 +1,64 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "adif2map"
+dynamic = ["version"]
+description = "Display your ham radio QSOs on a map"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Fred C.", email = "github-fred@hidzz.com" }
+]
+keywords = ["ham radio", "adif", "maps"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: Telecommunications Industry",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "adif-parser",
+    "folium",
+    "matplotlib",
+    "pandas",
+    "pyproj",
+    "dxcty_parser",
+    "geo_ham",
+]
+
+[project.urls]
+Homepage = "https://github.com/0x9900/adif2map"
+Repository = "https://github.com/0x9900/adif2map"
+
+[project.scripts]
+adif2map = "adif2map.adif2map:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/adif2map"]
+
+[tool.hatch.version]
+path = "src/adif2map/__init__.py"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[project.optional-dependencies]
+dev = [
+    "build",
+    "flake8",
+    "geo_ham",
+    "isort",
+    "mypy",
+    "pre-commit",
+    "pylint",
+    "twine",
+]
+
+[tool.mypy]
+ignore_missing_imports = true

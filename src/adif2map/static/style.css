@@ -1,0 +1,82 @@
+/*
+ * style.css
+ * Copyright © 2026 Fred W6BSD
+ *
+ * Distributed under terms of the BSD 3-Clause license.
+ */
+
+body {
+    background-color: #fdfdff;
+    color: #333;
+    font-family: -apple-system, BlinkMacSystemFont, Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+  background: linear-gradient(135deg, #0a2342, #1c3d73);
+  font-family: Arial, sans-serif;
+  padding: 0 0;
+  text-align: center;
+  border-bottom: 4px solid #f80;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-bottom: 20px;
+  color: #eee;
+}
+
+header div {
+  margin: .5rem;
+}
+
+header a {
+  color: #DAF7A6;
+}
+
+header h1 {
+  color: #DAF7A6;
+  text-align: center;
+  font-size: 3rem;
+  margin: .5rem;
+  text-shadow: 1px 1px 0 #7a9e4a,
+               2px 2px 0 #5a7a2a,
+               3px 3px 0 #3a5a1a,
+               4px 4px 0 #1a3a0a,
+               5px 5px 8px rgba(0, 0, 0, 0.3);
+}
+
+header .counters  {
+    font-family: "Courier New", Courier, monospace;
+    font-size: 1.2rem;
+    text-align: center;
+    color: #ddd;
+}
+
+main {
+  padding: 2em;
+  margin: 0 auto;
+}
+
+footer {
+  font-size: .8em;
+  background-color: #322;
+  text-align: right;
+  color: #cccccc;
+  margin-top: 0em;
+  padding: 1em 6em;
+}
+
+footer .container {
+    padding-bottom: 3em;
+    line-height: 1.6em;
+}
+
+footer a {
+  color: yellow;
+  text-decoration: none;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
