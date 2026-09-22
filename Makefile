@@ -22,7 +22,7 @@ all: pre-commit pylint mypy
 
 # Clean: Remove build artifacts and cache
 clean:
-	rm -rf build/ dist/ *.egg-info/ __pycache__/
+	rm -rf build/ *.egg-info/ __pycache__/
 
 # Pre-commit: Run pre-commit hooks
 pre-commit:

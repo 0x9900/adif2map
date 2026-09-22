@@ -5,4 +5,8 @@
 #
 # Distributed under terms of the BSD 3-Clause license.
 
-__version__ = '0.0.1'
+from .adif2map import load_adif, normalize_data, render_html
+
+__all__ = ["load_adif", "normalize_data", "render_html"]
+
+__version__ = '0.0.2'

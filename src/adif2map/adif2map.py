@@ -102,11 +102,13 @@ class Contact:
 
 class DXE:
   # pylint: disable=too-few-public-methods
-  _dxe = dxcty_parser.load_cty()
+  _dxe = None
 
-  @staticmethod
-  def lookup(call):
-    dxe = DXE._dxe.lookup(call)
+  @classmethod
+  def lookup(cls, call):
+    if cls._dxe is None:
+      cls._dxe = dxcty_parser.load_cty()
+    dxe = cls._dxe.lookup(call)
     return dxe.entity if dxe else None
 
 
