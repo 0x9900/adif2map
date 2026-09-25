@@ -9,4 +9,4 @@ from .adif2map import load_adif, normalize_data, render_html
 
 __all__ = ["load_adif", "normalize_data", "render_html"]
 
-__version__ = '0.0.2'
+__version__ = '0.0.3'

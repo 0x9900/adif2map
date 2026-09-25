@@ -13,6 +13,7 @@ import sys
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
+from warnings import warn
 
 import adif_parser
 import dxcty_parser
@@ -241,8 +242,8 @@ def normalize_data(data: pd.DataFrame, location: tuple[float, float]) -> pd.Data
   data['LAT'] = pd.to_numeric(data['LAT'], errors='coerce').fillna(0).astype('float64')
   data['LON'] = pd.to_numeric(data['LON'], errors='coerce').fillna(0).astype('float64')
   distance = np.zeros(data.shape[0])
-  distance = np.array(geod.inv(orig[:, 1], orig[:, 0],  data.LON.values, data.LAT.values))
-  data[['AZIMUTH', 'INV', 'DISTANCE']] = np.transpose(distance)
+  distance = np.array(geod.inv(orig[:, 1], orig[:, 0],  data.LON.values, data.LAT.values)[2])
+  data['DISTANCE'] = np.transpose(distance)
   data = data.reset_index(drop=True)
 
   return data.copy()
@@ -288,7 +289,27 @@ def plot_map(data: pd.DataFrame, call: str, location: tuple[float, float]) -> st
   return wmap._repr_html_()  # pylint: disable=protected-access
 
 
+def gen_map(data: pd.DataFrame, call: str, location: str | tuple[float, float], output: Path):
+  contacts = data[
+    ["CALL", "BAND", "MODE", "COUNTRY", "LAT", "LON", "GRIDSQUARE", "TX_PWR",
+     "START_TIME", "DISTANCE"]
+  ]
+  contacts = contacts.dropna().reset_index(drop=True)
+  loc = grid2latlon(location) if isinstance(location, str) else location
+
+  pmap = plot_map(contacts, call, loc)
+
+  with output.open(mode="w", encoding="utf-8") as fout:
+    fout.write(pmap)
+    logging.info('Write file: %s', output)
+
+
 def render_html(data: pd.DataFrame, call: str, location: tuple[float, float], output: Path):
+  warn(
+    'The next version will only generate a map, not a full html page.',
+    DeprecationWarning,
+    stacklevel=2
+  )
   contacts = data[
     ["CALL", "BAND", "MODE", "COUNTRY", "LAT", "LON", "GRIDSQUARE", "TX_PWR",
      "START_TIME", "DISTANCE"]
@@ -349,6 +370,7 @@ def main() -> None:
     logger.error(err)
     sys.exit(os.EX_PROTOCOL)
 
+  # gen_map(adif, opts.call, location, opts.output)
   render_html(adif, opts.call, location, opts.output)
 
 
