@@ -10,4 +10,4 @@ from .adif2map import (gen_map, gen_map_string, load_adif, normalize_data,
 
 __all__ = ["gen_map", "gen_map_string", "load_adif", "normalize_data", "render_html"]
 
-__version__ = '0.0.4'
+__version__ = '0.0.5'
