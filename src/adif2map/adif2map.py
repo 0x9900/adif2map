@@ -25,9 +25,14 @@ from folium.plugins import Geocoder, HeatMap, MarkerCluster
 from geo_ham import ddm2decimal, grid2latlon
 from jinja2 import Environment, FileSystemLoader
 
+from .text_box import add_infobox
+
 __all__ = ["main", "load_adif", "render_html"]
 
+logging.basicConfig(format='%(asctime)s %(levelname)s %(lineno)d:  %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S')
 logger = logging.getLogger("analog")
+
 
 KEEP_FIELDS = [
   "CALL", "BAND", "MODE", "COUNTRY", "LAT", "LON",
@@ -189,8 +194,9 @@ def load_adif(filename: Path) -> pd.DataFrame:
   missing_fields = list(set(NEEDED_FIELDS) - set(data.columns))
 
   if missing_fields:
+    needed_fields = list(set(KEEP_FIELDS) - set(data.columns))
     raise ValueError(
-      f'The following fields are missing from the ADIF file: {", ".join(sorted(missing_fields))}'
+      f'The fields {", ".join(sorted(needed_fields))}, are missing from the ADIF file.'
     )
 
   keep_fields = list(set(data.columns) & set(KEEP_FIELDS))
@@ -211,10 +217,6 @@ def normalize_data(data: pd.DataFrame, location: tuple[float, float]) -> pd.Data
   data['TIME_ON'] = data['TIME_ON'].fillna('000000')
   data['START_TIME'] = pd.to_datetime(data[['QSO_DATE', 'TIME_ON']].agg(' '.join, axis=1))
 
-  if 'COUNTRY' not in data.columns:
-    data['COUNTRY'] = np.nan
-  data['COUNTRY'] = data['COUNTRY'].fillna('')
-
   if 'TIME_ON' not in data.columns:
     data['TIME_ON'] = '000000'
 
@@ -223,6 +225,10 @@ def normalize_data(data: pd.DataFrame, location: tuple[float, float]) -> pd.Data
 
   if 'LON' not in data.columns:
     data['LON'] = np.nan
+
+  if 'COUNTRY' not in data.columns:
+    data['COUNTRY'] = np.nan
+  data['COUNTRY'] = data['COUNTRY'].fillna('')
 
   data = data.apply(get_info, axis=1)
   data = data[~data.CALL.isnull()]
@@ -286,10 +292,13 @@ def plot_map(data: pd.DataFrame, call: str, location: tuple[float, float]) -> st
     layer.add_to(wmap)
 
   folium.LayerControl().add_to(wmap)
+  add_infobox(wmap, f'{data.shape[0]} QSO for {call}')
+
   return wmap._repr_html_()  # pylint: disable=protected-access
 
 
-def gen_map(data: pd.DataFrame, call: str, location: str | tuple[float, float], output: Path):
+def gen_map_string(data: pd.DataFrame, call: str,
+                   location: str | tuple[float, float]) -> str:
   contacts = data[
     ["CALL", "BAND", "MODE", "COUNTRY", "LAT", "LON", "GRIDSQUARE", "TX_PWR",
      "START_TIME", "DISTANCE"]
@@ -298,10 +307,15 @@ def gen_map(data: pd.DataFrame, call: str, location: str | tuple[float, float], 
   loc = grid2latlon(location) if isinstance(location, str) else location
 
   pmap = plot_map(contacts, call, loc)
+  return pmap
 
+
+def gen_map(data: pd.DataFrame, call: str, location: str | tuple[float, float],
+            output: Path) -> None:
+  pmap = gen_map_string(data, call, location)
   with output.open(mode="w", encoding="utf-8") as fout:
     fout.write(pmap)
-    logging.info('Write file: %s', output)
+    logging.info('Write file: %s for %s', output, call)
 
 
 def render_html(data: pd.DataFrame, call: str, location: tuple[float, float], output: Path):
@@ -359,7 +373,7 @@ def main() -> None:
 
   try:
     adif = load_adif(opts.adif_file)
-    adif = adif[-10000:]
+    adif = adif.tail(10000)
   except (FileNotFoundError, ValueError) as err:
     logger.error(err)
     sys.exit(os.EX_IOERR)

@@ -29,7 +29,7 @@ dependencies = [
     "pandas",
     "pyproj",
     "dxcty_parser",
-    "geo_ham",
+    "geo_ham>=0.1.4",
 ]
 
 [project.urls]
